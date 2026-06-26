@@ -1,0 +1,38 @@
+# Compiled Java classes
+*.class
+
+# Eclipse output folder
+/bin/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Maven
+target/
+
+# Gradle
+.gradle/
+build/
+
+# Java archives
+*.jar
+*.war
+*.ear
+
+# Backup files
+*~
