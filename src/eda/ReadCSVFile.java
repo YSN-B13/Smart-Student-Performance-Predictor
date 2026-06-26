@@ -10,11 +10,15 @@ import java.util.Map;
 
 public class ReadCSVFile {
     private String filename;
-    private Map<String, List<String>> df;
+    private Map<String, List<Object>> df;
+    private Map<String, Class<?>> columnTypes;
 
     public ReadCSVFile(String filename) throws IOException {
         this.filename = filename;
-        this.df = new LinkedHashMap<>();
+        df = new LinkedHashMap<>();
+        columnTypes = new LinkedHashMap<>();
+        
+        Map<String, List<String>> rawData = new LinkedHashMap<>();
         List<String> headers = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -28,19 +32,88 @@ public class ReadCSVFile {
                     for (String header : values) {
                         header = header.trim();
                         headers.add(header);
-                        df.put(header, new ArrayList<>());
+                        rawData.put(header, new ArrayList<>());
                     }
                     isFirstLine = false;
                 } else {
                     for (int i = 0; i < Math.min(values.length, headers.size()); i++) {
-                        String header = headers.get(i);
-                        df.get(header).add(values[i].trim());
+                    	rawData.get(headers.get(i)).add(values[i].trim());
                     }
                 }
             }
         }
+        
+        for (String column : rawData.keySet()) {
+        	Class<?> type = inferType(rawData.get(column));
+        	columnTypes.put(column, type);
+        	df.put(column, convertColumn(rawData.get(column), type));
+        }
     }
     
+    private Class<?> inferType(List<String> values) {
+    	boolean integer = true;
+    	boolean decimal = true;
+    	boolean bool = true;
+    	
+    	 for (String value : values) {
+
+             try {
+                 Integer.parseInt(value);
+             } catch (NumberFormatException e) {
+                 integer = false;
+             }
+
+
+             try {
+                 Double.parseDouble(value);
+             } catch (NumberFormatException e) {
+                 decimal = false;
+             }
+
+             if (!(value.equalsIgnoreCase("true")
+                     || value.equalsIgnoreCase("false")
+                     || value.equalsIgnoreCase("yes")
+                     || value.equalsIgnoreCase("no"))) {
+                 bool = false;
+             }
+         }
+    	 if (integer)
+             return Integer.class;
+
+         if (decimal)
+             return Double.class;
+
+         if (bool)
+             return Boolean.class;
+
+         return String.class;
+    }
+    
+    private List<Object> convertColumn(List<String> values, Class<?> type) {
+		List<Object> result = new ArrayList<>();
+		
+		for (String value : values) {
+			if (type == Integer.class) {
+				result.add(Integer.parseInt(value));
+			}
+		
+			else if (type == Double.class) {
+				result.add(Double.parseDouble(value));
+			}
+		
+			else if (type == Boolean.class) {
+				result.add(value.equalsIgnoreCase("true")
+						|| value.equalsIgnoreCase("yes"));
+			}
+		
+			else {
+				result.add(value);
+			}
+		}
+
+		return result;	
+	}
+   
     public void head(int n) {
     	if (n <= 0) {
     	    System.out.println("Number of Rows Must Be Greater Than 0");
@@ -108,12 +181,26 @@ public class ReadCSVFile {
     public String getFilename() {
 		return filename;
 	}
+    
+    public void dtypes() {
+        System.out.println("Detected Types:");
 
-	public Map<String, List<String>> getDf() {
+        for (String column : columnTypes.keySet()) {
+            System.out.printf("%-20s%s%n",
+                    column,
+                    columnTypes.get(column).getSimpleName());
+        }
+    }
+
+	public Map<String, List<Object>> getDf() {
 		return df;
 	}
 	
-	public List<String> getColumn(String columnName) {
+	public Map<String, Class<?>> getColumnTypes() {
+        return columnTypes;
+    }
+	
+	public List<Object> getColumn(Object columnName) {
         return df.get(columnName);
     }
 	
@@ -153,46 +240,47 @@ public class ReadCSVFile {
 		System.out.printf("%-20s%-10s%-10s%-10s%-10s%-10s%n",
 	            "Column", "Count", "Mean", "Std", "Min", "Max");
 		
-		System.out.println("--------------------------------------------------------------");
+		System.out.println("-------------------------------------------------------------------------");
 		
 		for (String column : df.keySet()) {
-			List<String> values = df.get(column);
+			Class<?> type = columnTypes.get(column);
+			if (!(type == Integer.class || type == Double.class)) {
+	            continue;
+	        }
+			
+			List<Object> values = df.get(column);
 			
 			double sum = 0;
-			double sum2 = 0;
+			double sumSquares  = 0;
 			double min = Double.MAX_VALUE;
 			double max = -Double.MAX_VALUE;
-			int count = 0;
-			boolean numeric = true;
+			int count = values.size();
 			
-			for (String value : values) {
-				try {
-					double number = Double.parseDouble(value);
-					
-					sum += number;
-					sum2 += number * number;
-					max = Math.max(max, number);
-					min = Math.min(min, number);
-					count++;
-					
-				} catch (NumberFormatException e) {
-					numeric = false;
-					break;
-				}
+			for (Object obj : values) {
+				double number = ((Number) obj).doubleValue();
+
+	            sum += number;
+	            sumSquares += number * number;
+
+	            min = Math.min(min, number);
+	            max = Math.max(max, number);
 			}
-			
-			if (numeric && count > 0) {
-				double mean = sum / count;
-				double std = Math.sqrt((sum2 / count) - Math.pow(mean, 2));
-				
-				System.out.printf("%-20s%-10d%-10.2f%-10.2f%-10.2f%-10.2f%n",
-	                    column,
-	                    count,
-	                    mean,
-	                    std,
-	                    min,
-	                    max);
-			}
+
+			double mean = sum / count;
+
+			double variance = (sumSquares / count) - (mean * mean);
+	        variance = Math.max(variance, 0);
+	        double std = Math.sqrt(variance);
+
+	        System.out.printf(
+	            "%-20s%-10d%-12.2f%-12.2f%-12.2f%-12.2f%n",
+	            column,
+	            count,
+	            mean,
+	            std,
+	            min,
+	            max
+	        );
 		}
 	}
 }

@@ -8,6 +8,11 @@ public class EDA {
 
         try {
             ReadCSVFile csv = new ReadCSVFile("data/train.csv");
+            
+            System.out.println("========== DATA ==========");
+            System.out.println(csv.getDf());
+
+            System.out.println();
 
             System.out.println("========== HEAD ==========");
             csv.head(5);
@@ -22,6 +27,11 @@ public class EDA {
             System.out.println("========== SHAPE ==========");
             int[] shape = csv.getShape();
             System.out.println("(" + shape[0] + ", " + shape[1] + ")");
+            
+            System.out.println();
+            
+            System.out.println("========== TYPES ==========");
+            csv.dtypes();
             
             System.out.println();
             
