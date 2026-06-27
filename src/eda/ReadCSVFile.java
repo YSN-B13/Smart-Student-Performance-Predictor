@@ -63,7 +63,6 @@ public class ReadCSVFile {
                  integer = false;
              }
 
-
              try {
                  Double.parseDouble(value);
              } catch (NumberFormatException e) {
