@@ -60,6 +60,11 @@ public class EDA {
             csv.isNull();
             
             System.out.println();
+            
+            System.out.println("========== VALUE COUNTS ==========");
+            csv.valueCounts("Gender", true);
+            
+            System.out.println();
 
         } catch (IOException e) {
             System.out.println("Error reading CSV file.");
