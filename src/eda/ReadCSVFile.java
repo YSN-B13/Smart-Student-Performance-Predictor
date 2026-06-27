@@ -283,4 +283,30 @@ public class ReadCSVFile {
 	        );
 		}
 	}
+	
+	public void isNull() {
+		System.out.printf("%-20s%s%n", "Column", "Null Count");
+	    System.out.println("--------------------------------");
+	    
+	    for (String column : df.keySet()) {
+	    	int count = 0;
+	    	for (Object value : df.get(column)) {
+	    		if (value == null) {
+	    			count++;
+	    		} 
+	    		else if (value instanceof String) {
+	    			String s = ((String) value).trim();
+	    			
+	    			if (s.isEmpty()
+	                        || s.equalsIgnoreCase("null")
+	                        || s.equalsIgnoreCase("NaN")
+	                        || s.equalsIgnoreCase("NA")) {
+
+	                    count++;
+	                }
+	    		}
+	    	}
+	    	System.out.printf("%-20s%d%n", column, count);
+	    }
+	}
 }
