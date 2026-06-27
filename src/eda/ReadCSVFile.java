@@ -328,24 +328,56 @@ public class ReadCSVFile {
 	}
 	
 	public int notNaColumn(String columnName) {
-		int count = 0;
-		for (Object value : df.get(columnName)) {
-			if (value == null) {
-				count++;
-			}
-			else if (value instanceof String) {
-				String s = ((String) value).trim();
-    			
-    			if (s.isEmpty()
-                        || s.equalsIgnoreCase("null")
-                        || s.equalsIgnoreCase("NaN")
-                        || s.equalsIgnoreCase("NA")) {
+	    if (!df.containsKey(columnName))
+	        throw new IllegalArgumentException("Column '" + columnName + "' Does Not Exist");
 
-                    count++;
-                }
-			}
-		}
-		int notna = df.values().iterator().next().size() - count;
-		return notna;
+	    int notNa = 0;
+
+	    for (Object value : df.get(columnName)) {
+	        if (value == null)
+	            continue;
+
+	        if (value instanceof String) {
+	            String s = ((String) value).trim();
+
+	            if (s.isEmpty()
+	                    || s.equalsIgnoreCase("null")
+	                    || s.equalsIgnoreCase("NaN")
+	                    || s.equalsIgnoreCase("NA"))
+	                continue;
+	        }
+	        notNa++;
+	    }
+	    return notNa;
+	}
+	
+	public void valueCounts(String columnName, boolean ascending) {
+	    if (!df.containsKey(columnName))
+	        throw new IllegalArgumentException(
+	                "Column '" + columnName + "' Does Not Exist");
+
+	    Map<Object, Integer> valueCounts = new LinkedHashMap<>();
+
+	    for (Object value : df.get(columnName)) {
+	        valueCounts.put(value, valueCounts.getOrDefault(value, 0) + 1);
+	    }
+
+	    List<Map.Entry<Object, Integer>> entries =
+	            new ArrayList<>(valueCounts.entrySet());
+
+	    if (ascending)
+	        entries.sort(Map.Entry.comparingByValue());
+	    else
+	        entries.sort(Map.Entry.<Object, Integer>comparingByValue().reversed());
+
+	    System.out.println("Value Counts for '" + columnName + "'");
+	    System.out.printf("%-20s%s%n", "Value", "Count");
+	    System.out.println("--------------------------------");
+	    
+	    for (Map.Entry<Object, Integer> entry : entries) {
+	        System.out.printf("%-20s %d%n",
+	                entry.getKey(),
+	                entry.getValue());
+	    }
 	}
 }
