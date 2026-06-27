@@ -30,11 +30,6 @@ public class EDA {
             
             System.out.println();
             
-            System.out.println("========== TYPES ==========");
-            csv.dtypes();
-            
-            System.out.println();
-            
             System.out.println("========== RENAME S/N -> RollNo ==========");
             csv.renameColumn("S/N", "RollNo");
             System.out.println(csv.getColumn("RollNo"));
@@ -43,6 +38,16 @@ public class EDA {
             
             System.out.println("========== COLUMNS ==========");
             csv.columns();
+            
+            System.out.println();
+            
+            System.out.println("========== INFO ==========");
+            csv.info();
+            
+            System.out.println();
+            
+            System.out.println("========== TYPES ==========");
+            csv.dtypes();
             
             System.out.println();
             
