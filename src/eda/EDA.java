@@ -48,6 +48,13 @@ public class EDA {
             
             System.out.println("========== DESCRIBE ==========");
             csv.describe();
+            
+            System.out.println();
+            
+            System.out.println("========== NULL VALUES ==========");
+            csv.isNull();
+            
+            System.out.println();
 
         } catch (IOException e) {
             System.out.println("Error reading CSV file.");
