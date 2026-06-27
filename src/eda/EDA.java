@@ -66,12 +66,19 @@ public class EDA {
             
             System.out.println();
             
-            System.out.println("========== PLOTS ==========");
-            seaborn.Barplot(csv.getDf(), "absences", "Score");
-            seaborn.Barplot(csv.getDf(), "internet", "Score");
-            seaborn.Barplot(csv.getDf(), "studytime", "Score");
-            seaborn.Barplot(csv.getDf(), "freetime", "Score");
-            seaborn.Barplot(csv.getDf(), "Pstatus", "Score");
+            System.out.println("========== BAR PLOTS ==========");
+//            seaborn.Barplot(csv.getDf(), "absences", "Score");
+//            seaborn.Barplot(csv.getDf(), "internet", "Score");
+//            seaborn.Barplot(csv.getDf(), "studytime", "Score");
+//            seaborn.Barplot(csv.getDf(), "freetime", "Score");
+//            seaborn.Barplot(csv.getDf(), "Pstatus", "Score");
+//            seaborn.Barplot(csv.getDf(), "health", "Score");
+//            seaborn.Barplot(csv.getDf(), "Location", "Score");
+            
+            System.out.println();
+            
+            System.out.println("========== LINE PLOTS ==========");
+            seaborn.Lineplot(csv.getDf(), "Medu", "Score");
             
             System.out.println();
 
