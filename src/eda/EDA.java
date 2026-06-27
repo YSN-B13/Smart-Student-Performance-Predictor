@@ -65,6 +65,15 @@ public class EDA {
             csv.valueCounts("Gender", true);
             
             System.out.println();
+            
+            System.out.println("========== PLOTS ==========");
+            seaborn.Barplot(csv.getDf(), "absences", "Score");
+            seaborn.Barplot(csv.getDf(), "internet", "Score");
+            seaborn.Barplot(csv.getDf(), "studytime", "Score");
+            seaborn.Barplot(csv.getDf(), "freetime", "Score");
+            seaborn.Barplot(csv.getDf(), "Pstatus", "Score");
+            
+            System.out.println();
 
         } catch (IOException e) {
             System.out.println("Error reading CSV file.");
