@@ -182,11 +182,23 @@ public class ReadCSVFile {
 		return filename;
 	}
     
-    public void dtypes() {
-        System.out.println("Detected Types:");
+    public void info() {
+        System.out.println("Data Columns (Total " + df.size() + " Columns):");
+        System.out.printf("%-20s%-20s%-20s%n",
+	            "Column", "Non-Null Count", "Dtype");
+        System.out.println("-----------------------------------------------");
 
         for (String column : columnTypes.keySet()) {
-            System.out.printf("%-20s%s%n",
+            System.out.printf("%-20s%-20s%-20s%n",
+                    column,
+                    notNaColumn(column) + " Non-Null",
+                    columnTypes.get(column).getSimpleName());
+        }
+    }
+    
+    public void dtypes() {
+        for (String column : columnTypes.keySet()) {
+            System.out.printf("%-20s%-20s%n",
                     column,
                     columnTypes.get(column).getSimpleName());
         }
@@ -200,7 +212,7 @@ public class ReadCSVFile {
         return columnTypes;
     }
 	
-	public List<Object> getColumn(Object columnName) {
+	public List<Object> getColumn(String columnName) {
         return df.get(columnName);
     }
 	
@@ -227,6 +239,10 @@ public class ReadCSVFile {
 	        throw new IllegalArgumentException("Column '" + newColumnName + "' Already Exists");
 
 	    df.put(newColumnName, df.remove(oldColumnName));
+
+	    if (columnTypes.containsKey(oldColumnName)) {
+	        columnTypes.put(newColumnName, columnTypes.remove(oldColumnName));
+	    }
 	}
 	
 	public void dropColumn(String columnName) {
@@ -234,6 +250,7 @@ public class ReadCSVFile {
 	        throw new IllegalArgumentException("Column '" + columnName + "' Does Not Exist");
 
 	    df.remove(columnName);
+	    columnTypes.remove(columnName);
 	}
 	
 	public void describe() {
@@ -308,5 +325,27 @@ public class ReadCSVFile {
 	    	}
 	    	System.out.printf("%-20s%d%n", column, count);
 	    }
+	}
+	
+	public int notNaColumn(String columnName) {
+		int count = 0;
+		for (Object value : df.get(columnName)) {
+			if (value == null) {
+				count++;
+			}
+			else if (value instanceof String) {
+				String s = ((String) value).trim();
+    			
+    			if (s.isEmpty()
+                        || s.equalsIgnoreCase("null")
+                        || s.equalsIgnoreCase("NaN")
+                        || s.equalsIgnoreCase("NA")) {
+
+                    count++;
+                }
+			}
+		}
+		int notna = df.values().iterator().next().size() - count;
+		return notna;
 	}
 }
